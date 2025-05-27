@@ -1,49 +1,97 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Segredo</title>
   <style>
-    body {
+    body,
+    html {
       margin: 0;
       padding: 0;
+      height: 100%;
+      width: 100%;
+      font-family: 'Georgia', serif;
       background-color: #0a0a0a;
       color: #fff;
-      font-family: 'Georgia', serif;
+      overflow: hidden;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
       text-align: center;
-      overflow: hidden;
-      background-image: url('./bg.png'); /* Sua imagem de rosas pretas */
-      background-size: cover;
-      background-position: center;
-      animation: moverFundo 60s infinite linear;
+      position: relative;
+    }
+
+    
+    .background-move {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 150vh;
+      background-image: url('./bg.png');
+      background-repeat: repeat-y;
+      background-position: center top;
+      background-size: contain;
+      z-index: 0;
+      animation: moverFundo 60s linear infinite;
+      will-change: transform;
     }
 
     @keyframes moverFundo {
-      0% { background-position: center top; }
-      50% { background-position: center bottom; }
-      100% { background-position: center top; }
+      0% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-30vh);
+      }
+
+      100% {
+        transform: translateY(0);
+      }
+    }
+
+    /* Camada de overlay escuro */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(10, 10, 10, 0.6);
+      z-index: 1;
+      pointer-events: none;
+      transition: background-color 1s ease;
+    }
+
+    .overlay.escurecer {
+      background-color: rgba(10, 10, 10, 0.85);
+    }
+
+    /* Conteúdo principal */
+    .conteudo {
+      position: relative;
+      z-index: 2;
+      max-width: 90vw;
+      padding: 1rem;
     }
 
     .mensagem {
       font-size: 1.5rem;
       margin-bottom: 2rem;
-      opacity: 1;
-      z-index: 2;
+      word-wrap: break-word;
     }
 
     #surpresa {
       display: none;
-      margin-top: 2rem;
       font-size: 1.4rem;
       color: #c79aff;
       white-space: pre-line;
-      z-index: 3;
       animation: aparecer 2s ease-out forwards;
+      word-wrap: break-word;
+      margin-top: 2rem;
     }
 
     @keyframes aparecer {
@@ -52,6 +100,7 @@
         transform: scale(0.9) translateY(20px);
         filter: blur(5px);
       }
+
       100% {
         opacity: 1;
         transform: scale(1) translateY(0);
@@ -60,59 +109,267 @@
     }
 
     button {
-      padding: 0.5rem 1.2rem;
+      padding: 0.6rem 1.5rem;
       background-color: transparent;
       color: #fff;
-      border: 1px solid #fff;
+      border: 1.5px solid #fff;
       cursor: pointer;
-      font-size: 1rem;
+      font-size: 1.1rem;
+      border-radius: 4px;
       transition: all 0.3s;
-      z-index: 2;
     }
 
-    button:hover {
+    button:hover,
+    button:focus {
       background-color: #fff;
       color: #000;
+      outline: none;
     }
 
-    .overlay {
+    /* Responsividade */
+    @media (max-width: 480px) {
+      .mensagem {
+        font-size: 1.2rem;
+        margin-bottom: 1.5rem;
+      }
+
+      #surpresa {
+        font-size: 1.1rem;
+        margin-top: 1.5rem;
+      }
+
+      button {
+        font-size: 1rem;
+        padding: 0.5rem 1rem;
+      }
+    }
+
+    /* Elementos góticos */
+    .elemento-gotico {
+      position: fixed;
+      pointer-events: none;
+      z-index: 10;
+      opacity: 0;
+      transform-origin: center;
+      transition: transform 0.5s ease-out, opacity 1s ease-out;
+    }
+
+    /* Fase de pétala */
+    .petala {
+      width: 20px;
+      height: 30px;
+      background: linear-gradient(135deg, #2c0b3a 0%, #1a1a1a 100%);
+      clip-path: path('M10 0 Q15 5 10 10 Q5 15 10 20 Q15 25 10 30 Q5 25 0 20 Q5 15 0 10 Q5 5 10 0');
+      box-shadow: 0 0 5px rgba(100, 0, 150, 0.7);
+    }
+
+    /* Fase de borboleta */
+    .borboleta {
+      width: 40px;
+      height: 30px;
+      filter: drop-shadow(0 0 3px rgba(150, 0, 255, 0.5));
+    }
+
+    /* Asas da borboleta */
+    .asa-borboleta {
       position: absolute;
-      top: 0;
-      left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(10, 10, 10, 0.6);
-      z-index: 1;
+      background: linear-gradient(135deg, transparent 40%, #3a1a4a 100%);
+      clip-path: path('M20 15 Q30 0 40 15 Q30 30 20 15 Z');
+      animation: bater-asa 0.4s infinite alternate;
     }
 
-    .fade-body {
-      animation: escurecerFundo 1s ease forwards;
+    .asa-borboleta.direita {
+      transform: scaleX(-1);
+      animation-delay: 0.2s;
     }
 
-    @keyframes escurecerFundo {
-      0% { background-color: rgba(10,10,10,0.6); }
-      100% { background-color: rgba(10,10,10,0.85); }
+    @keyframes bater-asa {
+      0% { transform: rotate(-10deg) scaleY(0.9); }
+      100% { transform: rotate(10deg) scaleY(1.1); }
+    }
+
+    /* Efeito de brilho */
+    .brilho {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, rgba(138, 43, 226, 0.3) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: pulsar 2s infinite alternate;
+    }
+
+    @keyframes pulsar {
+      0% { opacity: 0.3; transform: scale(0.8); }
+      100% { opacity: 0.7; transform: scale(1.2); }
     }
   </style>
 </head>
+
 <body>
+
+  <div class="background-move"></div>
   <div class="overlay" id="camadaEscura"></div>
 
-  <div class="mensagem">Nem todas as luzes brilham no escuro…</div>
-  <button onclick="mostrarSurpresa()">Descobrir</button>
-  <div id="surpresa">Mas você brilha. <br> No meu mundo escuro, você é a chama.</div>
+  <div class="conteudo">
+    <div class="mensagem">Nem todas as luzes brilham no escuro…</div>
+    <button onclick="mostrarSurpresa()">Revelar Mistério</button>
+    <div id="surpresa">Mas você brilha. <br> Na escuridão do meu mundo, você é a única luz que persiste.</div>
+  </div>
 
   <script>
+    function criarElementoGotico() {
+      const elemento = document.createElement('div');
+      elemento.className = 'elemento-gotico petala';
+      
+      // Posição inicial aleatória no topo
+      const startX = Math.random() * window.innerWidth;
+      elemento.style.left = `${startX}px`;
+      elemento.style.top = `-50px`;
+      
+      document.body.appendChild(elemento);
+      
+      // Tempo até começar a cair
+      const delay = Math.random() * 2000;
+      
+      setTimeout(() => {
+        elemento.style.opacity = '0.9';
+        
+        // Animação de queda da pétala
+        const startTime = Date.now();
+        const duration = 3000 + Math.random() * 2000;
+        const endY = window.innerHeight + 50;
+        const driftX = (Math.random() - 0.5) * 200;
+        
+        function animarQueda() {
+          const elapsed = Date.now() - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          
+          // Movimento sinuoso
+          const currentX = startX + (driftX * progress);
+          const currentY = -50 + (endY * progress);
+          const rotation = Math.sin(progress * Math.PI * 2) * 30;
+          
+          elemento.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${rotation}deg)`;
+          
+          // Transformação em borboleta no meio da queda
+          if (progress > 0.5 && elemento.classList.contains('petala')) {
+            transformarEmBorboleta(elemento, currentX, currentY);
+          }
+          
+          if (progress < 1) {
+            requestAnimationFrame(animarQueda);
+          } else {
+            elemento.remove();
+          }
+        }
+        
+        requestAnimationFrame(animarQueda);
+      }, delay);
+    }
+
+    function transformarEmBorboleta(elemento, x, y) {
+      elemento.classList.remove('petala');
+      elemento.classList.add('borboleta');
+      elemento.innerHTML = `
+        <div class="brilho"></div>
+        <div class="asa-borboleta esquerda"></div>
+        <div class="asa-borboleta direita"></div>
+      `;
+      elemento.style.width = '40px';
+      elemento.style.height = '30px';
+      
+      // Novo movimento de voo
+      const startTime = Date.now();
+      const duration = 4000;
+      const amplitude = 50 + Math.random() * 100;
+      
+      function animarVoo() {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        if (progress >= 1) {
+          elemento.style.opacity = '0';
+          setTimeout(() => elemento.remove(), 1000);
+          return;
+        }
+        
+        const offsetX = Math.sin(progress * Math.PI * 4) * amplitude;
+        const offsetY = -elapsed / 10; // Subindo gradualmente
+        const rotation = Math.sin(progress * Math.PI * 8) * 15;
+        
+        elemento.style.transform = `
+          translate(${x + offsetX}px, ${y + offsetY}px)
+          rotate(${rotation}deg)
+          scale(${1 - progress * 0.5})
+        `;
+        
+        requestAnimationFrame(animarVoo);
+      }
+      
+      requestAnimationFrame(animarVoo);
+    }
+
     function mostrarSurpresa() {
       const surpresa = document.getElementById('surpresa');
       const overlay = document.getElementById('camadaEscura');
-      
-      // Inicia a animação da camada
-      overlay.classList.add('fade-body');
 
-      // Mostra a surpresa com animação
+      overlay.classList.add('escurecer');
       surpresa.style.display = 'block';
+
+      // Cria múltiplos elementos
+      for (let i = 0; i < 25; i++) {
+        setTimeout(() => {
+          criarElementoGotico();
+          // Chance de criar um par extra
+          if (Math.random() > 0.7) {
+            setTimeout(criarElementoGotico, 300);
+          }
+        }, i * 300);
+      }
+      
+      // Efeito adicional após 3 segundos
+      setTimeout(() => {
+        const mensagem = document.querySelector('.mensagem');
+        mensagem.style.textShadow = '0 0 10px #8a2be2, 0 0 20px #8a2be2';
+        
+        // Cria um efeito especial central
+        const centro = document.createElement('div');
+        centro.className = 'elemento-gotico';
+        centro.style.left = '50%';
+        centro.style.top = '50%';
+        centro.style.transform = 'translate(-50%, -50%)';
+        centro.style.width = '150px';
+        centro.style.height = '150px';
+        centro.style.opacity = '0';
+        centro.innerHTML = `
+          <div style="
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(138, 43, 226, 0.5) 0%, transparent 70%);
+            border-radius: 50%;
+          "></div>
+        `;
+        document.body.appendChild(centro);
+        
+        // Animação de aparecimento
+        setTimeout(() => {
+          centro.style.transition = 'opacity 2s, transform 2s';
+          centro.style.opacity = '0.7';
+          centro.style.transform = 'translate(-50%, -50%) scale(1.5)';
+        }, 100);
+        
+        // Remove após 5 segundos
+        setTimeout(() => {
+          centro.style.opacity = '0';
+          setTimeout(() => centro.remove(), 2000);
+        }, 3000);
+      }, 3000);
     }
   </script>
+
 </body>
+
 </html>
